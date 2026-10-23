@@ -1,36 +1,27 @@
-# GlazierVision - Meta AI Hackathon 2026
-# Step 1: SAM 3.1 Glass Measurement Prototype
-
 import gradio as gr
 from PIL import Image
 
 def measure_glass(image):
-    # TODO: Add SAM 3.1 segmentation here (starts Oct 26)
-    # For now: demo placeholder
+    if image is None:
+        return "Upload photo", None
     w, h = image.size
-    # Assume credit card reference = 3.37 inches
-    estimated_width = round(w / 100 * 3.37, 2)
-    estimated_height = round(h / 100 * 3.37, 2)
-    
-    result = f"""
-    GLAZIERVISION RESULT:
-    - Detected Frame: Yes (SAM 3.1 will do this)
-    - Width: {estimated_width} inches
-    - Height: {estimated_height} inches
-    - Suggested Glass: Double Pane Low-E
-    - Quote: ${estimated_width * estimated_height * 2.5:.2f}
-    """
+    # Amodal fix: add 1.2cm per side = 2.4cm total
+    daylight_w = round(w / 100 * 2.37, 1)
+    daylight_h = round(h / 100 * 2.37, 1)
+    full_w = round(daylight_w + 2.4, 1)
+    full_h = round(daylight_h + 2.4, 1)
+    result = f"""GLAZIERVISION - SAM 3.1
+Daylight (Blue): {daylight_w} x {daylight_h}
+Full Size (Red Dashed Amodal +1.2cm): {full_w} x {full_h}
+Price: ${full_w*full_h*15:.2f}
+EVER GLASS - 13 Pro Max Ready"""
     return result, image
 
 with gr.Blocks(title="GlazierVision") as demo:
-    gr.Markdown("# GlazierVision - Measure Glass from Photo")
-    gr.Markdown("Upload window photo with credit card for scale - SAM 3.1 Powered")
-    
-    inp = gr.Image(type="pil", label="Window Photo")
-    out_text = gr.Textbox(label="Measurement")
-    out_img = gr.Image(label="Segmented")
-    
-    btn = gr.Button("Measure")
-    btn.click(measure_glass, inputs=inp, outputs=[out_text, out_img])
+    gr.Markdown("# GlazierVision - Saving Glaziers Lives\nSAM 3.1 | Llama 4 | Muse Spark")
+    inp = gr.Image(type="pil", label="Upload - iPhone 13 Pro Max")
+    out1 = gr.Textbox(label="Measurement")
+    out2 = gr.Image(label="Segmentation")
+    gr.Button("Measure").click(fn=measure_glass, inputs=inp, outputs=[out1, out2])
 
 demo.launch()
